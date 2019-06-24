@@ -249,21 +249,21 @@ Backup from the standby server has the following limitations:
 
 #### Setting up Cluster Verification
 
-Logical verification of database cluster requires the following additional setup:
+Logical verification of database cluster requires the following additional setup. Role **backup** is used as an example:
 - Install extension `amcheck` or `amcheck_next` in every database of the cluster:
 
         CREATE EXTENSION amcheck;
 
-- Grant the rights to select from relation `pg_catalog.pg_database` in database used for connection to role **backup**:
-- Grant the rights to select from `pg_catalog.pg_index` relation in every database to role **backup**:
-- Grant the rights to select from `pg_catalog.pg_namespace` relation in every database to role **backup**:
-- Grant the rights to select from `pg_catalog.pg_extension` relation in every database to role **backup**:
-- Grant the rights to select from `pg_catalog.pg_class` relation in every database to role **backup**:
-- Grant the rights to select from `pg_catalog.pg_am` relation in every database to role **backup**:
-- Grant the rights to execute amcheck functions to the **backup** role:
-
-        GRANT EXECUTE ON FUNCTION bt_index_check(oid) TO backup;
-        GRANT EXECUTE ON FUNCTION bt_index_check(oid, bool) TO backup;
+- To perform logical verification the following rights are requiared:
+```
+GRANT SELECT ON TABLE pg_catalog.pg_am TO backup;
+GRANT SELECT ON TABLE pg_catalog.pg_class TO backup;
+GRANT SELECT ON TABLE pg_catalog.pg_database TO backup;
+GRANT SELECT ON TABLE pg_catalog.pg_namespace TO backup;
+GRANT SELECT ON TABLE pg_catalog.pg_extension TO backup;
+GRANT EXECUTE ON FUNCTION bt_index_check(oid) TO backup;
+GRANT EXECUTE ON FUNCTION bt_index_check(oid, bool) TO backup;
+```
 
 #### Setting up PTRACK Backups
 
@@ -441,9 +441,9 @@ If an option is specified using more than one method, command-line input has the
 ##### Common Options
 The list of general options.
 
-###### -B directory
-###### --backup-path=directory
-###### BACKUP_PATH
+    -B directory
+    --backup-path=directory
+    BACKUP_PATH
 Specifies the absolute path to the **backup catalog**. Backup catalog is a directory where all backup files and meta information are stored. Since this option is required for most of the pg_probackup commands, you are recommended to specify it once in the BACKUP_PATH environment variable. In this case, you do not need to use this option each time on the command line. 
 
     -D directory
@@ -469,6 +469,7 @@ Shows detailed information about the options that can be used with this command.
 
 The following options can be used together with the [backup](#backup) command. Additionally [Connection Options](#connection-options), [Retention Options](#retention-options), [Remote Mode Options](#remote-mode-options), [Compression Options](#compression-options), [Logging Options](#logging-options) and [Common Options](#common-options) can be used.
 
+[foo]: /backup_mode
     -b mode
     --backup-mode=mode
 
